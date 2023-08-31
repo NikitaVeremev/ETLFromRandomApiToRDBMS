@@ -1,16 +1,21 @@
 import logging
+from abc import abstractmethod
 
 from pandas import DataFrame
 from requests import Response
 
 
 class ETLApi:
+
+    @abstractmethod
     def extract(self) -> Response:
         pass
 
+    @abstractmethod
     def transform(self, response: Response) -> DataFrame:
         pass
 
+    @abstractmethod
     def load(self, df: DataFrame) -> None:
         pass
 

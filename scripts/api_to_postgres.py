@@ -1,6 +1,9 @@
-import requests
-import pandas as pd
 import logging
+
+import pandas as pd
+import requests
+from airflow.models import BaseOperator
+from airflow.utils.decorators import apply_defaults
 from pandas import DataFrame
 from requests import Response
 from sqlalchemy import create_engine
@@ -8,11 +11,16 @@ from sqlalchemy import create_engine
 from scripts.etl_api import ETLApi
 
 
-class ETLApiImpl(ETLApi):
-    def __init__(self, api_url: str, db_url: str, target_table_name: str):
+class ApiToPostgresOperator(ETLApi, BaseOperator):
+    @apply_defaults
+    def __init__(self, api_url: str, db_url: str, target_table_name: str, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.api_url: str = api_url
         self.db_url = db_url
         self.target_table_name = target_table_name
+
+    def execute(self, context):
+        self.build()
 
     def extract(self) -> Response:
         logging.info(f"Get request from url: {self.api_url}")
