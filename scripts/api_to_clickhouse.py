@@ -1,23 +1,25 @@
 import logging
 
+import clickhouse_driver
 import pandas as pd
 import requests
 from airflow.models import BaseOperator
 from airflow.utils.decorators import apply_defaults
 from pandas import DataFrame
 from requests import Response
-from sqlalchemy import create_engine
 
 from scripts.etl_api import ETLApi
 
 
-class ApiToPostgresOperator(ETLApi, BaseOperator):
+class ApiToClickhouseOperator(ETLApi, BaseOperator):
+
     @apply_defaults
-    def __init__(self, api_url: str, db_url: str, target_table_name: str, *args, **kwargs):
+    def __init__(self, api_url: str, db_url: str, target_table_name: str, ddl: str, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.api_url: str = api_url
         self.db_url = db_url
         self.target_table_name = target_table_name
+        self.ddl = ddl
 
     def execute(self, context):
         self.build()
@@ -34,8 +36,10 @@ class ApiToPostgresOperator(ETLApi, BaseOperator):
         return pd.json_normalize(response.json())
 
     def load(self, df: DataFrame) -> int:
-        engine = create_engine(self.db_url)
+        client = clickhouse_driver.Client.from_url(self.db_url)
+        client.execute(self.ddl)
         logging.info(f"Start write to {self.target_table_name}.")
-        num_rows = df.to_sql(self.target_table_name, engine, if_exists='append')
+        num_rows = client.insert_dataframe(f'INSERT INTO {self.target_table_name} VALUES', df,
+                                           settings={'use_numpy': True})
         logging.info(f"Finish write to {self.target_table_name}.")
         return num_rows
