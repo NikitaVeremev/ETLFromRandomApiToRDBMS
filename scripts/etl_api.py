@@ -13,20 +13,37 @@ class ETLApi(ABC):
     @abstractmethod
     def extract(self) -> Response:
         """
-        Извлекает данные в сыром виде из Api источника.
+        Здесь необходимо реализовать шаг Extract.
+
+        Извлечение данных в сыром виде из Api источника.
         :return: Response с источника.
         """
-        pass
 
     @abstractmethod
     def transform(self, response: Response) -> DataFrame:
-        pass
+        """
+        Здесь необходимо реализовать шаг Transform.
+
+        Трансформация данных из Api источника.
+        :param response: Ответ с источника.
+        :return: Изменённый DataFrame.
+        """
 
     @abstractmethod
     def load(self, df: DataFrame) -> int:
-        pass
+        """
+        Здесь необходимо реализовать шаг Load.
 
-    def build(self) -> None:
+        Загрузка DataFrame в приёмник.
+        :param df: Изменённый DataFrame.
+        :return: Число изменённых строк на приёмнике.
+        """
+
+    def build(self) -> int:
+        """
+        Реализация ETL логики.
+        :return: Число изменённых строк на приёмнике.
+        """
         logging.info("Start Extract stage.")
         response = self.extract()
         logging.info("Start Transform stage.")
@@ -34,3 +51,4 @@ class ETLApi(ABC):
         logging.info("Start Load stage.")
         num_rows = self.load(df)
         logging.info(f"Finish Load stage. Number of rows affected: {num_rows}")
+        return num_rows

@@ -35,8 +35,7 @@ class ApiToClickhouseOperator(ETLApi, BaseOperator):
         logging.info(f"Get request from url: {self.api_url}")
         response = requests.get(self.api_url)
         logging.info(f"Response status code: {response.status_code}")
-        if not response.ok:
-            raise Exception("Response error, status code: ", response.status_code)
+        response.raise_for_status()
         return response
 
     def transform(self, response: Response) -> DataFrame:
@@ -52,4 +51,5 @@ class ApiToClickhouseOperator(ETLApi, BaseOperator):
             settings={"use_numpy": True},
         )
         logging.info(f"Finish write to {self.target_table_name}.")
+        client.dispose()
         return num_rows

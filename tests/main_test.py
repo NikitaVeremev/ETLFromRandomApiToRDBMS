@@ -15,7 +15,7 @@ from scripts.api_to_postgres import ApiToPostgresOperator
 
 
 def test_api_to_postgres_rowcount():
-    with PostgresContainer("postgres:9.5") as postgres:
+    with PostgresContainer() as postgres:
         client = sqlalchemy.create_engine(postgres.get_connection_url())
         op = ApiToPostgresOperator(
             task_id=api_to_postgres.task_id,
