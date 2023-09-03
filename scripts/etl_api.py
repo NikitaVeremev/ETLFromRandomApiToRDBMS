@@ -6,9 +6,16 @@ from requests import Response
 
 
 class ETLApi(ABC):
+    """
+    Абстрактный класс для реализации ETL процесса из Api источника.
+    """
 
     @abstractmethod
     def extract(self) -> Response:
+        """
+        Извлекает данные в сыром виде из Api источника.
+        :return: Response с источника.
+        """
         pass
 
     @abstractmethod

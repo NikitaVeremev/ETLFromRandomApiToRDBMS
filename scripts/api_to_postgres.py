@@ -13,7 +13,9 @@ from scripts.etl_api import ETLApi
 
 class ApiToPostgresOperator(ETLApi, BaseOperator):
     @apply_defaults
-    def __init__(self, api_url: str, db_url: str, target_table_name: str, *args, **kwargs):
+    def __init__(
+        self, api_url: str, db_url: str, target_table_name: str, *args, **kwargs
+    ):
         super().__init__(*args, **kwargs)
         self.api_url: str = api_url
         self.db_url = db_url
@@ -36,6 +38,6 @@ class ApiToPostgresOperator(ETLApi, BaseOperator):
     def load(self, df: DataFrame) -> int:
         engine = create_engine(self.db_url)
         logging.info(f"Start write to {self.target_table_name}.")
-        num_rows = df.to_sql(self.target_table_name, engine, if_exists='append')
+        num_rows = df.to_sql(self.target_table_name, engine, if_exists="append")
         logging.info(f"Finish write to {self.target_table_name}.")
         return num_rows
