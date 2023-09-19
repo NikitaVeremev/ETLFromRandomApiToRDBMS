@@ -51,5 +51,5 @@ class ApiToClickhouseOperator(ETLApi, BaseOperator):
             settings={"use_numpy": True},
         )
         logging.info(f"Finish write to {self.target_table_name}.")
-        client.dispose()
+        client.disconnect()
         return num_rows
